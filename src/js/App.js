@@ -1,37 +1,30 @@
+import Snaked, * as states from './Snaked';
 import Controls from './Controls';
 import Field from './Field';
 import Snake from './Snake';
 
-class Snaked {
-  constructor(field, controls) {
-    this.field = field;
-    this.controls = controls;
-    this.snakes = [];
+const canvas = document.getElementById('app');
+const field = new Field(canvas, { width: 20, height: 20, cellSize: 10, endless: true });
+const controls = new Controls();
 
-    this.start();
+let game = new Snaked(field, controls);
+
+window.addEventListener('keypress', e => {
+  if (e.key === 'Enter') {
+    switch (game.state) {
+      case states.STATE_INITIALIZED:
+        game.meetSnake(new Snake({ speed: 100 }));
+        game.start();
+
+        break;
+
+      case states.STATE_RUNNING:
+        game.pause();
+        break;
+
+      case states.STATE_PAUSED:
+        game.start();
+        break;
+    }
   }
-
-  start() {
-    this.snakes.push(new Snake(this.field, this.controls, { speed: 1 }));
-
-    this.field.addSnakes(this.snakes);
-
-    this.snakes.forEach(snake => snake.spawn());
-
-    setInterval(this.tick, 50);
-  }
-
-  tick = () => {
-    this.snakes.forEach(snake => snake.tick());
-
-    this.field.draw();
-  };
-}
-
-window.addEventListener('DOMContentLoaded', () => {
-  const canvas = document.getElementById('app');
-  const field = new Field(canvas, { width: 20, height: 20, cellSize: 10, endless: true });
-  const controls = new Controls();
-
-  new Snaked(field, controls);
 });

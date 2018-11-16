@@ -1,21 +1,20 @@
 import * as CONTROLS from './Controls';
 
 export default class Snake {
-  constructor(field, controls, { speed = 10 } = {}) {
-    this.field = field;
-    this.controls = controls;
+  constructor({ speed = 100 } = {}) {
+    this.field = null;
+    this.controls = null;
     this.body = [];
-    this.tickQuant = 0;
     this.speed = speed;
     this.direction = null;
+    this.passed = 0;
   }
 
-  tick() {
-    this.tickQuant++;
+  tick(delta) {
+    this.passed += delta;
 
-    if (this.tickQuant === this.speed) {
-      this.tickQuant = 0;
-
+    if (this.passed >= this.speed) {
+      this.passed = this.passed - this.speed;
       this.move();
     }
   }

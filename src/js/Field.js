@@ -36,8 +36,7 @@ export default class Field {
   }
 
   clearField() {
-    this.ctx.fillStyle = '#EEEEEE';
-    this.ctx.fillRect(0, 0, this.width, this.height);
+    this.ctx.clearRect(0, 0, this.width, this.height);
   }
 
   drawSnakes() {
