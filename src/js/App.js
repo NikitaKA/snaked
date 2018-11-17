@@ -7,7 +7,7 @@ const canvas = document.getElementById('app');
 const field = new Field(canvas, { width: 20, height: 20, cellSize: 10, endless: true });
 const controls = new Controls();
 
-let game = new Snaked(field, controls);
+let game = new Snaked(field, controls, { debug: true });
 
 window.addEventListener('keypress', e => {
   if (e.key === 'Enter') {
@@ -16,14 +16,6 @@ window.addEventListener('keypress', e => {
         game.meetSnake(new Snake({ speed: 100 }));
         game.start();
 
-        break;
-
-      case states.STATE_RUNNING:
-        game.pause();
-        break;
-
-      case states.STATE_PAUSED:
-        game.start();
         break;
     }
   }

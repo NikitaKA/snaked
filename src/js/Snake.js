@@ -1,7 +1,9 @@
+import * as states from './Snaked';
 import * as CONTROLS from './Controls';
 
 export default class Snake {
   constructor({ speed = 100 } = {}) {
+    this.app = null;
     this.field = null;
     this.controls = null;
     this.body = [];
@@ -27,6 +29,10 @@ export default class Snake {
   }
 
   move() {
+    if (this.app.state !== states.STATE_RUNNING) {
+      return false;
+    }
+
     const { x, y } = this.body[0];
 
     let nextHead = null;
