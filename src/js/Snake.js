@@ -15,9 +15,16 @@ export default class Snake {
   tick(delta) {
     this.passed += delta;
 
+    this.deTick(this.move);
+  }
+
+  deTick(callback) {
     if (this.passed >= this.speed) {
       this.passed = this.passed - this.speed;
-      this.move();
+
+      callback();
+
+      this.deTick(callback);
     }
   }
 
@@ -28,7 +35,7 @@ export default class Snake {
     });
   }
 
-  move() {
+  move = () => {
     if (this.app.state !== states.STATE_RUNNING) {
       return false;
     }
@@ -92,7 +99,7 @@ export default class Snake {
         }
       }
     }
-  }
+  };
 
   checkDimensions({ x, y }) {
     if (x < 0 || x >= this.field.width || y < 0 || y >= this.field.height) {

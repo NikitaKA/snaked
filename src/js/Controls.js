@@ -29,7 +29,7 @@ export default class Controls {
 
   appControl(e) {
     switch (e.code) {
-      case 'Enter':
+      case 'Space':
         switch (this.app.state) {
           case states.STATE_RUNNING:
             this.app.pause();
@@ -42,7 +42,7 @@ export default class Controls {
 
         break;
 
-      case 'Space':
+      case 'Enter':
         if (this.app.state === states.STATE_STOPPED) {
           this.app.start();
         } else {
