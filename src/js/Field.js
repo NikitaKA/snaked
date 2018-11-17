@@ -37,9 +37,10 @@ export default class Field {
 
   draw(delta) {
     this.clearField();
+    this.drawFood();
     this.drawSnakes();
 
-    if (this.app.debug) {
+    if (this.app.debug && delta) {
       this.drawDebug(delta);
     }
 
@@ -64,9 +65,16 @@ export default class Field {
   }
 
   drawSnake(snake) {
-    this.ctx.fillStyle = 'hsl(' + this.hue + ',100%,50%)';
+    this.ctx.fillStyle = 'black';
 
     snake.body.forEach(({ x, y }) => {
+      this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
+    });
+  }
+
+  drawFood() {
+    this.app.food.forEach(({ cell: { x, y } }) => {
+      this.ctx.fillStyle = 'hsl(' + this.hue + ',100%,50%)';
       this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
     });
   }
@@ -81,4 +89,16 @@ export default class Field {
 
     this.ctx.fillText(debug, this.cellSize, this.height - this.cellSize);
   }
+
+  gameOver = () => {
+    this.clearField();
+
+    this.draw();
+
+    const message = `GAME OVER! SCORE: ${this.app.snakes[0].size}`;
+
+    this.ctx.fillStyle = 'black';
+
+    this.ctx.fillText(message, this.cellSize, this.height - this.cellSize);
+  };
 }

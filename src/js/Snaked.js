@@ -1,3 +1,5 @@
+import Food from './Food';
+
 export const STATE_INITIALIZED = 'STATE_INITIALIZED';
 export const STATE_PAUSED = 'STATE_PAUSED';
 export const STATE_RUNNING = 'STATE_RUNNING';
@@ -12,6 +14,10 @@ export default class Snaked {
     this.reqAnimationFrame = null;
     this.debug = debug;
     this.then = 0;
+
+    this.onTickEndCallbacks = [];
+
+    this.food = [];
 
     this.field.app = this;
     this.controls.app = this;
@@ -48,7 +54,11 @@ export default class Snaked {
     this.update(delta);
     this.render(delta);
 
-    this.reqAnimationFrame = window.requestAnimationFrame(this.tick);
+    this.onTickEnd();
+
+    if (this.state !== STATE_STOPPED) {
+      this.reqAnimationFrame = window.requestAnimationFrame(this.tick);
+    }
   };
 
   meetSnake(snake) {
@@ -68,10 +78,65 @@ export default class Snaked {
   }
 
   update(delta) {
+    this.generateFood();
+
     this.snakes.forEach(snake => snake.tick(delta));
   }
 
   render(delta) {
     this.field.draw(delta);
+  }
+
+  generateFood() {
+    if (!this.food.length) {
+      const food = new Food(this);
+
+      this.food.push(food);
+    }
+  }
+
+  cellIntersectingWithObstacles({ x, y }) {
+    if (this.field.endless) {
+      return false;
+    } else {
+      if (x < 0 || x >= this.field.width || y < 0 || y >= this.field.height) {
+        return this.gameOver();
+      }
+    }
+
+    return false;
+  }
+
+  gameOver() {
+    this.stop();
+
+    this.onTickEnd(this.field.gameOver);
+
+    return true;
+  }
+
+  onTickEnd(callback) {
+    if (callback) {
+      this.onTickEndCallbacks.push(callback);
+    } else {
+      this.onTickEndCallbacks.forEach(cb => cb());
+      this.onTickEndCallbacks = [];
+    }
+  }
+
+  cellIntersectingWithSnakes(cellToCheck) {
+    let intersected = false;
+
+    this.snakes.forEach(snake => {
+      if (!intersected) {
+        snake.body.forEach(cell => {
+          if (cellToCheck.x === cell.x && cellToCheck.y === cell.y) {
+            intersected = true;
+          }
+        });
+      }
+    });
+
+    return intersected;
   }
 }
