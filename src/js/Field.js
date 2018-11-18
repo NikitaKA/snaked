@@ -74,7 +74,15 @@ export default class Field {
       return;
     }
 
-    const { name, points } = score[0];
+    let scores = [];
+
+    score.forEach(({ name, points }) => {
+      scores.push({
+        font: '14px Arial',
+        height: 14,
+        text: `${name} ${points}`
+      });
+    });
 
     drawText(this.ctx, this, {
       align: DRAWTEXT_ALIGN_CENTER,
@@ -82,8 +90,8 @@ export default class Field {
       bgcolor: '#ffffff',
       bgAlpha: 0.75,
       lines: [
-        { font: 'bold 14px Arial', height: 14, text: 'BEST SCORE', color: 'black', baseline: 'middle' },
-        { font: '14px Arial', height: 14, text: `${name} ${points}`, color: 'black', baseline: 'middle' }
+        { font: 'bold 14px Arial', height: 14, text: 'BEST SCORES', color: 'black', baseline: 'middle' },
+        ...scores
       ]
     });
   }

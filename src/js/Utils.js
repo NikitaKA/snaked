@@ -23,25 +23,26 @@ export function drawText(ctx, field, data) {
 
   switch (data.align) {
     case DRAWTEXT_ALIGN_CENTER:
-      ctx.fillRect(
-        field.width / 2 - width / 2 - padding,
-        field.height / 2 - height / 2 - padding,
-        width + 2 * padding,
-        height + 2 * padding
-      );
+      ctx.save();
+      ctx.translate(0, (field.height - height - padding * 2) / 2);
+
+      ctx.fillRect(field.width / 2 - width / 2 - padding, 0, width + 2 * padding, height + 2 * padding);
 
       ctx.globalAlpha = data.alpha || 1;
 
-      data.lines.forEach((line, i) => {
+      let heightOffset = padding;
+
+      data.lines.forEach(line => {
         ctx.textBaseline = line.baseline || 'middle';
         ctx.fillStyle = line.color || 'black';
 
-        // TODO: implement text align
-        const top = field.height / 2 - (data.lines.length - 1 - i) * line.height + line.height / data.lines.length;
-
         ctx.font = line.font;
-        ctx.fillText(line.text, field.width / 2 - line.width / 2, top);
+        ctx.fillText(line.text, field.width / 2 - line.width / 2, heightOffset + line.height / 2);
+
+        heightOffset += line.height;
       });
+
+      ctx.restore();
 
       break;
   }

@@ -48,7 +48,7 @@ export default class ScoreBoard {
       score.splice(index, 0, entry);
     }
 
-    if (score.length > 10) {
+    if (score.length > 5) {
       score.pop();
     }
 
