@@ -1,6 +1,12 @@
+import Score from './Score';
+import { DRAWTEXT_ALIGN_CENTER, drawText } from './Utils';
+
 export default class Field {
-  constructor(canvas, { width = 20, height = 20, cellSize = 10, endless = false, debug = false } = {}) {
+  constructor(canvas, { width = 0, height = 0, cellSize = 10, endless = false, debug = false } = {}) {
     this.app = null;
+
+    if (!width) width = Math.floor(window.innerWidth / cellSize);
+    if (!height) height = Math.floor(window.innerHeight / cellSize);
 
     this.size = {
       x: width,
@@ -37,8 +43,13 @@ export default class Field {
 
   draw(delta) {
     this.clearField();
+
     this.drawFood();
     this.drawSnakes();
+
+    if (!this.app.started) {
+      this.drawScore();
+    }
 
     if (this.app.debug && delta) {
       this.drawDebug(delta);
@@ -54,6 +65,27 @@ export default class Field {
       this.hueDirection *= -1;
       this.hue = 0;
     }
+  }
+
+  drawScore() {
+    const score = Score.score;
+
+    if (!score.length) {
+      return;
+    }
+
+    const { name, points } = score[0];
+
+    drawText(this.ctx, this, {
+      align: DRAWTEXT_ALIGN_CENTER,
+      padding: 2,
+      bgcolor: '#ffffff',
+      bgAlpha: 0.75,
+      lines: [
+        { font: 'bold 14px Arial', height: 14, text: 'BEST SCORE', color: 'black', baseline: 'middle' },
+        { font: '14px Arial', height: 14, text: `${name} ${points}`, color: 'black', baseline: 'middle' }
+      ]
+    });
   }
 
   clearField() {

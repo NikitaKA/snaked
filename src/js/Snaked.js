@@ -1,4 +1,5 @@
 import Food from './Food';
+import Score from './Score';
 
 export const STATE_INITIALIZED = 'STATE_INITIALIZED';
 export const STATE_PAUSED = 'STATE_PAUSED';
@@ -14,6 +15,8 @@ export default class Snaked {
     this.reqAnimationFrame = null;
     this.debug = debug;
     this.then = 0;
+    this.started = false;
+    this.gameover = false;
 
     this.onTickEndCallbacks = [];
 
@@ -24,6 +27,10 @@ export default class Snaked {
   }
 
   start() {
+    if (this.gameover) {
+      return;
+    }
+
     if (this.state === STATE_INITIALIZED) {
       this.field.addSnakes(this.snakes);
       this.snakes.forEach(snake => snake.spawn());
@@ -112,9 +119,13 @@ export default class Snaked {
   }
 
   gameOver() {
+    this.gameover = true;
+
     this.stop();
 
     this.onTickEnd(this.field.gameOver);
+
+    Score.checkScore(this.snakes[0].score);
 
     return true;
   }

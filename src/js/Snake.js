@@ -7,7 +7,7 @@ import Coords from './Coords';
 import Body from './Body';
 
 export default class Snake {
-  constructor({ speed = 1, toGrow = 2 } = {}) {
+  constructor({ speed = 5, toGrow = 2 } = {}) {
     this.app = null;
     this.field = null;
     this.controls = null;
@@ -107,6 +107,11 @@ export default class Snake {
     }
 
     if (this.controls.direction) {
+      // TODO: temp
+      if (!this.app.started) {
+        this.app.started = true;
+      }
+
       if (!this.app.cellIntersectingWithObstacles(headNewCoordsCheck)) {
         let headNewCoords = this.sideTravel(headNewCoordsCheck);
 
