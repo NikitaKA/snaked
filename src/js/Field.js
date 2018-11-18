@@ -78,8 +78,8 @@ export default class Field {
 
     score.forEach(({ name, points }) => {
       scores.push({
-        font: '14px Arial',
-        height: 14,
+        font: '12px Arial',
+        height: 12,
         text: `${name} ${points}`
       });
     });
@@ -89,10 +89,7 @@ export default class Field {
       padding: 2,
       bgcolor: '#ffffff',
       bgAlpha: 0.75,
-      lines: [
-        { font: 'bold 14px Arial', height: 14, text: 'BEST SCORES', color: 'black', baseline: 'middle' },
-        ...scores
-      ]
+      lines: [{ font: 'bold 14px Arial', height: 14, text: 'BEST SCORES' }, ...scores]
     });
   }
 
@@ -136,22 +133,15 @@ export default class Field {
 
     this.draw();
 
-    const fontSize = 10;
-    const padding = 2;
-    const message = `GAME OVER! SCORE: ${this.app.snakes[0].score}`;
-
-    this.ctx.font = `bold ${fontSize}px Arial`;
-
-    this.ctx.fillStyle = 'white';
-    this.ctx.fillRect(
-      this.width / 2 - this.ctx.measureText(message).width / 2 - padding,
-      this.height / 2 - fontSize / 2 - padding,
-      this.ctx.measureText(message).width + 2 * padding,
-      10 + 2 * padding
-    );
-
-    this.ctx.textBaseline = 'middle';
-    this.ctx.fillStyle = 'black';
-    this.ctx.fillText(message, this.width / 2 - this.ctx.measureText(message).width / 2, this.height / 2);
+    drawText(this.ctx, this, {
+      align: DRAWTEXT_ALIGN_CENTER,
+      padding: 2,
+      bgcolor: '#ffffff',
+      bgAlpha: 0.75,
+      lines: [
+        { font: 'bold 14px Arial', height: 14, text: 'GAME OVER' },
+        { font: '12px Arial', height: 12, text: `SCORE: ${this.app.snakes[0].score}` }
+      ]
+    });
   };
 }

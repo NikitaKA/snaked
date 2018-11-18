@@ -18,14 +18,14 @@ export function drawText(ctx, field, data) {
     height += line.height;
   });
 
-  ctx.fillStyle = data.bgcolor;
-  ctx.globalAlpha = data.bgAlpha || 1;
+  ctx.save();
 
   switch (data.align) {
     case DRAWTEXT_ALIGN_CENTER:
-      ctx.save();
       ctx.translate(0, (field.height - height - padding * 2) / 2);
 
+      ctx.fillStyle = data.bgcolor;
+      ctx.globalAlpha = data.bgAlpha || 1;
       ctx.fillRect(field.width / 2 - width / 2 - padding, 0, width + 2 * padding, height + 2 * padding);
 
       ctx.globalAlpha = data.alpha || 1;
@@ -42,8 +42,8 @@ export function drawText(ctx, field, data) {
         heightOffset += line.height;
       });
 
-      ctx.restore();
-
       break;
   }
+
+  ctx.restore();
 }
