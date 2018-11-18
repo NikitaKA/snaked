@@ -25,6 +25,22 @@ export default class Controls {
     window.addEventListener('keypress', e => {
       this.appControl(e);
     });
+
+    window.addEventListener('blur', () => {
+      this.app.stop();
+    });
+
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        this.app.start();
+      } else {
+        this.app.stop();
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      this.app.start();
+    });
   }
 
   appControl(e) {
