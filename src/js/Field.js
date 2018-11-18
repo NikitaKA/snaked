@@ -67,13 +67,13 @@ export default class Field {
   drawSnake(snake) {
     this.ctx.fillStyle = 'black';
 
-    snake.body.forEach(({ x, y }) => {
+    snake.body.forEach(({ coords: { x, y } }) => {
       this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
     });
   }
 
   drawFood() {
-    this.app.food.forEach(({ cell: { x, y } }) => {
+    this.app.food.forEach(({ coords: { x, y } }) => {
       this.ctx.fillStyle = 'hsl(' + this.hue + ',100%,50%)';
       this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
     });
@@ -83,11 +83,12 @@ export default class Field {
     this.ctx.font = 'bold 10px Arial';
 
     const fps = delta > 0 ? Math.round(1000 / delta) : '00';
-    const debug = `${fps} FPS`;
+    const debug = `FPS: ${fps}, SCORE: ${this.app.snakes[0].score}`;
 
     this.ctx.fillStyle = 'black';
-
+    this.ctx.globalAlpha = 0.5;
     this.ctx.fillText(debug, this.cellSize, this.height - this.cellSize);
+    this.ctx.globalAlpha = 1;
   }
 
   gameOver = () => {
@@ -95,10 +96,22 @@ export default class Field {
 
     this.draw();
 
-    const message = `GAME OVER! SCORE: ${this.app.snakes[0].size}`;
+    const fontSize = 10;
+    const padding = 2;
+    const message = `GAME OVER! SCORE: ${this.app.snakes[0].score}`;
 
+    this.ctx.font = `bold ${fontSize}px Arial`;
+
+    this.ctx.fillStyle = 'white';
+    this.ctx.fillRect(
+      this.width / 2 - this.ctx.measureText(message).width / 2 - padding,
+      this.height / 2 - fontSize / 2 - padding,
+      this.ctx.measureText(message).width + 2 * padding,
+      10 + 2 * padding
+    );
+
+    this.ctx.textBaseline = 'middle';
     this.ctx.fillStyle = 'black';
-
-    this.ctx.fillText(message, this.cellSize, this.height - this.cellSize);
+    this.ctx.fillText(message, this.width / 2 - this.ctx.measureText(message).width / 2, this.height / 2);
   };
 }

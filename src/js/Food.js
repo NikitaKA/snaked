@@ -1,10 +1,13 @@
+import Coords from './Coords';
 import Cell from './Cell';
 
-export default class Food {
-  constructor(app, { power = 1 } = {}) {
+export default class Food extends Cell {
+  constructor(app, { coords = Coords.generate(app), power = 1, score = 100 } = {}) {
+    super(coords);
+
     this.app = app;
-    this.cell = Cell.generate(app);
     this.power = power;
+    this.score = score;
   }
 
   destroy() {

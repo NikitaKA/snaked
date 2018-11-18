@@ -95,11 +95,15 @@ export default class Snaked {
     }
   }
 
-  cellIntersectingWithObstacles({ x, y }) {
+  cellIntersectingWithObstacles(coords) {
+    if (this.coordsIntersectingWithSnakes(coords)) {
+      return this.gameOver();
+    }
+
     if (this.field.endless) {
       return false;
     } else {
-      if (x < 0 || x >= this.field.width || y < 0 || y >= this.field.height) {
+      if (this.coorsOutsideField(coords)) {
         return this.gameOver();
       }
     }
@@ -124,13 +128,17 @@ export default class Snaked {
     }
   }
 
-  cellIntersectingWithSnakes(cellToCheck) {
+  coorsOutsideField(coords) {
+    return coords.x < 0 || coords.x >= this.field.width || coords.y < 0 || coords.y >= this.field.height;
+  }
+
+  coordsIntersectingWithSnakes(coords) {
     let intersected = false;
 
     this.snakes.forEach(snake => {
       if (!intersected) {
         snake.body.forEach(cell => {
-          if (cellToCheck.x === cell.x && cellToCheck.y === cell.y) {
+          if (coords.x === cell.coords.x && coords.y === cell.coords.y) {
             intersected = true;
           }
         });

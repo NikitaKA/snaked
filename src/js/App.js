@@ -9,5 +9,5 @@ const controls = new Controls();
 
 let game = new Snaked(field, controls, { debug: true });
 
-game.meetSnake(new Snake({ speed: 100 }));
+game.meetSnake(new Snake());
 game.start();

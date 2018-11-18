@@ -1,22 +1,30 @@
 import * as states from './Snaked';
 import * as CONTROLS from './Controls';
 
-import Cell from './Cell';
+import Coords from './Coords';
+import Body from './Body';
 
 export default class Snake {
-  constructor({ speed = 100, toGrow = 2 } = {}) {
+  constructor({ speed = 400, toGrow = 2 } = {}) {
     this.app = null;
     this.field = null;
     this.controls = null;
     this.body = [];
+    this.baseSpeed = speed;
     this.speed = speed;
     this.direction = null;
     this.passed = 0;
     this.toGrow = toGrow;
+    this.consumed = 0;
+    this.score = 0;
   }
 
   get size() {
     return this.body.length;
+  }
+
+  get head() {
+    return this.body[0];
   }
 
   tick(delta) {
@@ -35,8 +43,9 @@ export default class Snake {
     }
   }
 
-  spawn(x = 0, y = 0) {
-    this.body.push(new Cell(x, y));
+  spawn(x = null, y = null) {
+    const coords = x != null && y != null ? new Coords(x, y) : Coords.generate(this.app);
+    this.body.push(new Body(coords));
   }
 
   checkReverse() {
@@ -53,45 +62,74 @@ export default class Snake {
       return false;
     }
 
-    const { x, y } = this.body[0];
+    const { x, y } = this.head.coords;
 
-    let nextHeadCell = null;
+    let headNewCoordsCheck = null;
 
     let direction = this.checkReverse() ? this.direction : this.controls.direction;
 
     switch (direction) {
       case CONTROLS.DIRECTION_LEFT:
-        nextHeadCell = new Cell(x - this.field.cellSize, y);
+        headNewCoordsCheck = new Coords(x - this.field.cellSize, y);
 
         break;
 
       case CONTROLS.DIRECTION_RIGHT:
-        nextHeadCell = new Cell(x + this.field.cellSize, y);
+        headNewCoordsCheck = new Coords(x + this.field.cellSize, y);
 
         break;
 
       case CONTROLS.DIRECTION_UP:
-        nextHeadCell = new Cell(x, y - this.field.cellSize);
+        headNewCoordsCheck = new Coords(x, y - this.field.cellSize);
 
         break;
 
       case CONTROLS.DIRECTION_DOWN:
-        nextHeadCell = new Cell(x, y + this.field.cellSize);
+        headNewCoordsCheck = new Coords(x, y + this.field.cellSize);
 
         break;
     }
 
     if (this.controls.direction) {
-      if (!this.app.cellIntersectingWithObstacles(nextHeadCell)) {
-        let newHeadCell = this.teleport(nextHeadCell);
+      if (!this.app.cellIntersectingWithObstacles(headNewCoordsCheck)) {
+        let headNewCoords = this.sideTravel(headNewCoordsCheck);
 
         this.direction = direction;
-        this.body.unshift(newHeadCell);
-        this.feed(newHeadCell);
-        this.tailTrimmer();
+
+        this.eat(headNewCoords);
       }
     }
   };
+
+  addBody(coords) {
+    this.body.unshift(new Body(coords));
+  }
+
+  eat(coords) {
+    this.addBody(coords);
+    this.feed(coords);
+  }
+
+  feed(coordsToEat) {
+    let foodCell = this.checkFoodInCoords(coordsToEat);
+
+    if (foodCell) {
+      this.consumed++;
+      this.score += foodCell.score;
+
+      this.adjustSpeed();
+
+      this.toGrow = foodCell.power;
+
+      foodCell.destroy();
+    }
+
+    this.tailTrimmer();
+  }
+
+  adjustSpeed() {
+    this.speed = this.baseSpeed - this.consumed * 20;
+  }
 
   tailTrimmer() {
     if (this.toGrow) {
@@ -102,37 +140,34 @@ export default class Snake {
     this.body.pop();
   }
 
-  eatableCellCheck(cellToCheck) {
-    let eatableCell = null;
+  checkFoodInCoords(coords) {
+    let foodCell = null;
 
     this.app.food.forEach(food => {
-      if (!eatableCell) {
-        if (food.cell.x === cellToCheck.x && food.cell.y === cellToCheck.y) {
-          eatableCell = food;
+      if (!foodCell) {
+        if (food.coords.x === coords.x && food.coords.y === coords.y) {
+          foodCell = food;
         }
       }
     });
 
-    return eatableCell;
+    return foodCell;
   }
 
-  feed(cellToEat) {
-    let foodCell = this.eatableCellCheck(cellToEat);
+  sideTravel(coords) {
+    let newCoords = null;
 
-    if (foodCell) {
-      this.toGrow = foodCell.power;
-      foodCell.destroy();
-    }
-  }
+    if (coords.x < 0 || coords.x >= this.field.width || coords.y < 0 || coords.y >= this.field.height) {
+      let x, y;
 
-  teleport({ x, y }) {
-    if (x < 0 || x >= this.field.width || y < 0 || y >= this.field.height) {
-      if (x < 0) x = this.field.width - this.field.cellSize;
-      if (y < 0) y = this.field.height - this.field.cellSize;
-      if (x >= this.field.width) x = 0;
-      if (y >= this.field.height) y = 0;
+      if (coords.x < 0) x = this.field.width - this.field.cellSize;
+      if (coords.y < 0) y = this.field.height - this.field.cellSize;
+      if (coords.x >= this.field.width) x = 0;
+      if (coords.y >= this.field.height) y = 0;
+
+      newCoords = new Coords(x, y);
     }
 
-    return new Cell(x, y);
+    return newCoords || coords;
   }
 }
