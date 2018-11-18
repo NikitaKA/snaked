@@ -10,9 +10,4 @@ const controls = new Controls();
 let game = new Snaked(field, controls, { debug: true });
 
 game.meetSnake(new Snake());
-
-if (document.visibilityState !== 'visible') {
-  game.start();
-} else {
-  game.field.drawScore();
-}
+game.start();
