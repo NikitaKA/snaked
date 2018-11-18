@@ -10,6 +10,8 @@ export default class Controls {
     this.app = null;
     this.direction = null;
 
+    this.keysPressed = {};
+
     this.init();
   }
 
@@ -19,7 +21,15 @@ export default class Controls {
         return false;
       }
 
-      this.directionControl(e);
+      this.keyDown(e);
+    });
+
+    window.addEventListener('keyup', e => {
+      if (this.app.state === states.STATE_PAUSED || this.app.state === states.STATE_STOPPED) {
+        return false;
+      }
+
+      this.keyUp(e);
     });
 
     window.addEventListener('keypress', e => {
@@ -67,8 +77,32 @@ export default class Controls {
     }
   }
 
-  directionControl(e) {
-    switch (e.code) {
+  keyDown(e) {
+    this.keysPressed[e.code] = performance.now();
+
+    this.selectDirection();
+  }
+
+  keyUp(e) {
+    this.keysPressed[e.code] = 0;
+
+    this.selectDirection();
+  }
+
+  selectDirection() {
+    let latestKey = null;
+    let latestKeyTime = 0;
+
+    Object.keys(this.keysPressed).forEach(key => {
+      const keyTime = this.keysPressed[key];
+
+      if ((!latestKeyTime && keyTime) || (latestKeyTime && keyTime && keyTime > latestKeyTime)) {
+        latestKey = key;
+        latestKeyTime = keyTime;
+      }
+    });
+
+    switch (latestKey) {
       case 'ArrowLeft':
         this.direction = DIRECTION_LEFT;
         break;
