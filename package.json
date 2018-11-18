@@ -69,6 +69,7 @@
     "npm": ">= 6.1.0"
   },
   "dependencies": {
+    "bezier-easing": "^2.1.0",
     "jquery": "^3.3.1"
   }
 }

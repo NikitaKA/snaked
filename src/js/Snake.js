@@ -1,3 +1,5 @@
+import BezierEasing from 'bezier-easing';
+
 import * as states from './Snaked';
 import * as CONTROLS from './Controls';
 
@@ -5,18 +7,32 @@ import Coords from './Coords';
 import Body from './Body';
 
 export default class Snake {
-  constructor({ speed = 400, toGrow = 2 } = {}) {
+  constructor({ speed = 1, toGrow = 2 } = {}) {
     this.app = null;
     this.field = null;
     this.controls = null;
     this.body = [];
-    this.baseSpeed = speed;
-    this.speed = speed;
+    this.baseSpeed = 200 - (speed - 1) * 10;
+    this.minimumSpeed = 20;
     this.direction = null;
     this.passed = 0;
     this.toGrow = toGrow;
     this.consumed = 0;
     this.score = 0;
+
+    this.speedEasing = BezierEasing(0.25, 0.46, 0.45, 0.94);
+  }
+
+  get speed() {
+    let speed = this.baseSpeed;
+
+    if (this.consumed) {
+      const easing = this.speedEasing(this.consumed / 50);
+
+      speed = Math.round(this.baseSpeed - (this.baseSpeed - this.minimumSpeed) * easing);
+    }
+
+    return speed;
   }
 
   get size() {
@@ -117,18 +133,12 @@ export default class Snake {
       this.consumed++;
       this.score += foodCell.score;
 
-      this.adjustSpeed();
-
       this.toGrow = foodCell.power;
 
       foodCell.destroy();
     }
 
     this.tailTrimmer();
-  }
-
-  adjustSpeed() {
-    this.speed = this.baseSpeed - this.consumed * 20;
   }
 
   tailTrimmer() {
