@@ -6,11 +6,16 @@ export const DIRECTION_UP = 'DIRECTION_UP';
 export const DIRECTION_DOWN = 'DIRECTION_DOWN';
 
 export default class Controls {
-  constructor() {
+  constructor({ left = 'ArrowLeft', right = 'ArrowRight', up = 'ArrowUp', down = 'ArrowDown' } = {}) {
     this.app = null;
     this.direction = null;
 
     this.keysPressed = {};
+
+    this.kLeft = left;
+    this.kRight = right;
+    this.kUp = up;
+    this.kDown = down;
 
     this.init();
   }
@@ -31,50 +36,6 @@ export default class Controls {
 
       this.keyUp(e);
     });
-
-    window.addEventListener('keypress', e => {
-      this.appControl(e);
-    });
-
-    window.addEventListener('blur', () => {
-      this.app.stop();
-    });
-
-    window.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        this.app.start();
-      } else {
-        this.app.stop();
-      }
-    });
-
-    window.addEventListener('focus', () => {
-      this.app.start();
-    });
-  }
-
-  appControl(e) {
-    switch (e.code) {
-      case 'Space':
-        switch (this.app.state) {
-          case states.STATE_RUNNING:
-            this.app.pause();
-            break;
-
-          case states.STATE_PAUSED:
-            this.app.start();
-            break;
-        }
-
-        break;
-
-      case 'Enter':
-        if (this.app.state === states.STATE_STOPPED) {
-          this.app.start();
-        } else {
-          this.app.stop();
-        }
-    }
   }
 
   keyDown(e) {
@@ -103,16 +64,16 @@ export default class Controls {
     });
 
     switch (latestKey) {
-      case 'ArrowLeft':
+      case this.kLeft:
         this.direction = DIRECTION_LEFT;
         break;
-      case 'ArrowRight':
+      case this.kRight:
         this.direction = DIRECTION_RIGHT;
         break;
-      case 'ArrowUp':
+      case this.kUp:
         this.direction = DIRECTION_UP;
         break;
-      case 'ArrowDown':
+      case this.kDown:
         this.direction = DIRECTION_DOWN;
         break;
 

@@ -18,7 +18,7 @@ export default class ScoreBoard {
     let score = ScoreBoard.score;
     let index = score.length ? -1 : 0;
 
-    score.forEach(({points: p}, i) => {
+    score.forEach(({ points: p }, i) => {
       if (index < 0) {
         if (points > p) {
           index = i;
@@ -37,7 +37,9 @@ export default class ScoreBoard {
     const date = new Date();
 
     const entry = {
-      name, points, date
+      name,
+      points,
+      date
     };
 
     let score = ScoreBoard.score;
@@ -52,6 +54,6 @@ export default class ScoreBoard {
       score.pop();
     }
 
-    localStorage.setItem('snaked-score', score |> JSON.stringify);
+    localStorage.setItem('snaked-score', JSON.stringify(score));
   }
 }

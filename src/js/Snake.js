@@ -7,10 +7,12 @@ import Coords from './Coords';
 import Body from './Body';
 
 export default class Snake {
-  constructor({ speed = 5, toGrow = 2 } = {}) {
-    this.app = null;
-    this.field = null;
-    this.controls = null;
+  constructor(app, controls, { speed = 5, toGrow = 2, color = 'black' } = {}) {
+    this.app = app;
+    this.field = this.app.field;
+    this.controls = controls;
+    this.controls.app = app;
+
     this.body = [];
     this.baseSpeed = 200 - (speed - 1) * 10;
     this.minimumSpeed = 20;
@@ -19,6 +21,7 @@ export default class Snake {
     this.toGrow = toGrow;
     this.consumed = 0;
     this.score = 0;
+    this.color = color;
 
     this.speedEasing = BezierEasing(0.25, 0.46, 0.45, 0.94);
   }
@@ -112,7 +115,7 @@ export default class Snake {
         this.app.started = true;
       }
 
-      if (!this.app.cellIntersectingWithObstacles(headNewCoordsCheck)) {
+      if (!this.app.cellIntersectingWithObstacles(this, headNewCoordsCheck)) {
         let headNewCoords = this.sideTravel(headNewCoordsCheck);
 
         this.direction = direction;

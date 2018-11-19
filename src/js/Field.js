@@ -37,8 +37,8 @@ export default class Field {
     this.canvas.style.height = this.height + 'px';
   }
 
-  addSnakes(snakes) {
-    this.snakes = snakes;
+  get snakes() {
+    return this.app.snakes;
   }
 
   draw(delta) {
@@ -102,25 +102,33 @@ export default class Field {
   }
 
   drawSnake(snake) {
-    this.ctx.fillStyle = 'black';
+    this.ctx.save();
+
+    this.ctx.fillStyle = snake.color;
 
     snake.body.forEach(({ coords: { x, y } }) => {
       this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
     });
+
+    this.ctx.restore();
   }
 
   drawFood() {
+    this.ctx.save();
+
     this.app.food.forEach(({ coords: { x, y } }) => {
       this.ctx.fillStyle = 'hsl(' + this.hue + ',100%,50%)';
       this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
     });
+
+    this.ctx.restore();
   }
 
   drawDebug(delta) {
     this.ctx.font = 'bold 10px Arial';
 
     const fps = delta > 0 ? Math.round(1000 / delta) : '00';
-    const debug = `FPS: ${fps}, SCORE: ${this.app.snakes[0].score}`;
+    const debug = `FPS: ${fps}`;
 
     this.ctx.fillStyle = 'black';
     this.ctx.globalAlpha = 0.5;

@@ -1,5 +1,7 @@
 import Food from './Food';
 import Score from './Score';
+import Controls from './Controls';
+import Snake from './Snake';
 
 export const STATE_INITIALIZED = 'STATE_INITIALIZED';
 export const STATE_PAUSED = 'STATE_PAUSED';
@@ -7,9 +9,8 @@ export const STATE_RUNNING = 'STATE_RUNNING';
 export const STATE_STOPPED = 'STATE_STOPPED';
 
 export default class Snaked {
-  constructor(field, controls, { debug = false } = {}) {
+  constructor(field, { debug = false } = {}) {
     this.field = field;
-    this.controls = controls;
     this.snakes = [];
     this.state = STATE_INITIALIZED;
     this.reqAnimationFrame = null;
@@ -23,17 +24,75 @@ export default class Snaked {
     this.food = [];
 
     this.field.app = this;
-    this.controls.app = this;
+
+    this.init();
+  }
+
+  init() {
+    window.addEventListener('keypress', e => {
+      this.appControl(e);
+    });
+
+    window.addEventListener('blur', () => {
+      this.stop();
+    });
+
+    window.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        this.start();
+      } else {
+        this.stop();
+      }
+    });
+
+    window.addEventListener('focus', () => {
+      this.start();
+    });
+  }
+
+  addSnake() {
+    if (!this.snakes.length) {
+      const controls = new Controls();
+      const snake = new Snake(this, controls);
+      this.snakes.push(snake);
+      snake.spawn();
+    } else if (this.snakes.length === 1) {
+      const controls = new Controls({
+        left: 'KeyA',
+        right: 'KeyD',
+        up: 'KeyW',
+        down: 'KeyS'
+      });
+
+      const snake = new Snake(this, controls, { color: 'red' });
+      this.snakes.push(snake);
+      snake.spawn();
+    }
+  }
+
+  appControl(e) {
+    switch (e.code) {
+      case 'Space':
+        switch (this.state) {
+          case STATE_RUNNING:
+            this.pause();
+            break;
+
+          case STATE_PAUSED:
+            this.start();
+            break;
+        }
+
+        break;
+
+      case 'Enter':
+        this.addSnake();
+    }
   }
 
   start() {
     if (this.gameover) {
       return;
-    }
-
-    if (this.state === STATE_INITIALIZED) {
-      this.field.addSnakes(this.snakes);
-      this.snakes.forEach(snake => snake.spawn());
     }
 
     this.state = STATE_RUNNING;
@@ -68,14 +127,6 @@ export default class Snaked {
     }
   };
 
-  meetSnake(snake) {
-    snake.app = this;
-    snake.field = this.field;
-    snake.controls = this.controls;
-
-    this.snakes.push(snake);
-  }
-
   setDelta(now) {
     const delta = now - this.then;
 
@@ -102,30 +153,37 @@ export default class Snaked {
     }
   }
 
-  cellIntersectingWithObstacles(coords) {
+  cellIntersectingWithObstacles(snake, coords) {
     if (this.coordsIntersectingWithSnakes(coords)) {
-      return this.gameOver();
+      return this.gameOver(snake);
     }
 
     if (this.field.endless) {
       return false;
     } else {
       if (this.coorsOutsideField(coords)) {
-        return this.gameOver();
+        return this.gameOver(snake);
       }
     }
 
     return false;
   }
 
-  gameOver() {
-    this.gameover = true;
+  killSnake(snake) {
+    let index = this.snakes.findIndex(s => s === snake);
 
-    this.stop();
+    this.snakes.splice(index, 1);
+  }
 
-    this.onTickEnd(this.field.gameOver);
-
-    Score.checkScore(this.snakes[0].score);
+  gameOver(snake) {
+    if (this.snakes.length > 1) {
+      this.killSnake(snake);
+    } else {
+      this.gameover = true;
+      this.stop();
+      this.onTickEnd(this.field.gameOver);
+      Score.checkScore(this.snakes[0].score);
+    }
 
     return true;
   }
