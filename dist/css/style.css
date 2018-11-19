@@ -1,1 +1,7 @@
-body,html{margin:0;padding:0}body canvas,html canvas{background-color:#eee;display:block}
+html, body {
+  margin: 0;
+  padding: 0; }
+  html canvas, body canvas {
+    display: block;
+    background-color: #eeeeee; }
+
