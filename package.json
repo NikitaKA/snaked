@@ -1,6 +1,6 @@
 {
   "name": "snaked",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Snaked - re-think of the Snake",
   "main": "index.js",
   "scripts": {
