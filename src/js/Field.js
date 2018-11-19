@@ -23,9 +23,6 @@ export default class Field {
 
     this.endless = endless;
 
-    this.hue = 0;
-    this.hueDirection = 1;
-
     this.init();
   }
 
@@ -44,8 +41,9 @@ export default class Field {
   draw(delta) {
     this.clearField();
 
-    this.drawFood();
     this.drawSnakes();
+
+    this.drawFood(delta);
 
     if (!this.app.started) {
       this.drawScore();
@@ -53,17 +51,6 @@ export default class Field {
 
     if (this.app.debug && delta) {
       this.drawDebug(delta);
-    }
-
-    this.hue += this.hueDirection;
-
-    if (this.hue > 255) {
-      this.hueDirection *= -1;
-      this.hue = 255;
-    }
-    if (this.hue < 0) {
-      this.hueDirection *= -1;
-      this.hue = 0;
     }
   }
 
@@ -113,15 +100,11 @@ export default class Field {
     this.ctx.restore();
   }
 
-  drawFood() {
-    this.ctx.save();
-
-    this.app.food.forEach(({ coords: { x, y } }) => {
-      this.ctx.fillStyle = 'hsl(' + this.hue + ',100%,50%)';
-      this.ctx.fillRect(x, y, this.cellSize, this.cellSize);
+  drawFood(delta) {
+    this.app.food.forEach(food => {
+      food.tick(delta);
+      food.draw(this.ctx);
     });
-
-    this.ctx.restore();
   }
 
   drawDebug(delta) {
