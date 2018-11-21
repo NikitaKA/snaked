@@ -1,10 +1,11 @@
-import Controls from './Controls';
 import Coords from './Coords';
 import Food from './Food';
 import Score from './Score';
 import Snake from './Snake';
 
+import Controls, { CONTROLS_WSAD } from './Controls';
 import { DRAWTEXT_ALIGN_CENTER, drawText } from './Utils';
+import Wall from './Wall';
 
 export default class Field {
   constructor(canvas, { width = 20, height = 20, cellSize = 10, endless = false } = {}) {
@@ -59,13 +60,12 @@ export default class Field {
       this.snakes.push(snake);
 
       snake.spawn();
+
+      for (let i = 0; i < 5; i++) {
+        this.addWall(new Wall(this, Coords.generate(this)));
+      }
     } else if (this.snakes.length === 1) {
-      const controls = new Controls(this.app, {
-        left: 'KeyA',
-        right: 'KeyD',
-        up: 'KeyW',
-        down: 'KeyS'
-      });
+      const controls = new Controls(this.app, CONTROLS_WSAD);
 
       const snake = new Snake(this.app, this, controls, { color: 'red' });
       this.snakes.push(snake);
@@ -109,8 +109,15 @@ export default class Field {
     }
   }
 
+  addWall(wall) {
+    this.writeCell(wall);
+    this.walls.push(wall);
+  }
+
   draw(delta) {
     this.clearField();
+
+    this.drawWalls();
 
     this.drawSnakes();
 
@@ -178,6 +185,13 @@ export default class Field {
     });
   }
 
+  drawWalls(delta) {
+    this.walls.forEach(wall => {
+      wall.tick(delta);
+      wall.draw(this.ctx);
+    });
+  }
+
   drawDebug(delta) {
     this.ctx.font = 'bold 10px Arial';
 
@@ -188,22 +202,6 @@ export default class Field {
     this.ctx.globalAlpha = 0.5;
     this.ctx.fillText(debug, this.cellSize, this.height - this.cellSize);
     this.ctx.globalAlpha = 1;
-  }
-
-  coordsIntersectingWithSnakes(coords) {
-    let intersected = false;
-
-    this.snakes.forEach(snake => {
-      if (!intersected) {
-        snake.body.forEach(cell => {
-          if (coords.x === cell.coords.x && coords.y === cell.coords.y) {
-            intersected = true;
-          }
-        });
-      }
-    });
-
-    return intersected;
   }
 
   gameOver = () => {

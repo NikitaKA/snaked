@@ -1,5 +1,5 @@
-import Body from './Body';
 import Score from './Score';
+import Food from './Food';
 
 export const STATE_INITIALIZED = 'STATE_INITIALIZED';
 export const STATE_PAUSED = 'STATE_PAUSED';
@@ -12,12 +12,11 @@ export default class Snaked {
   #state = STATE_INITIALIZED;
   #then = 0;
   #onTickEndCallbacks = [];
-  #field = [];
 
   constructor(field, { debug = false } = {}) {
     this.debug = debug;
 
-    this.#field = field;
+    this.field = field;
 
     this.#init();
   }
@@ -31,7 +30,7 @@ export default class Snaked {
   }
 
   #init = () => {
-    this.#field.app = this;
+    this.field.app = this;
 
     window.addEventListener('keypress', e => {
       this.#appControl(e);
@@ -70,7 +69,7 @@ export default class Snaked {
         break;
 
       case 'Enter':
-        this.#field.addSnake();
+        this.field.addSnake();
     }
   };
 
@@ -120,21 +119,21 @@ export default class Snaked {
   };
 
   #update = delta => {
-    this.#field.update(delta);
+    this.field.update(delta);
   };
 
   #render = delta => {
-    this.#field.draw(delta);
+    this.field.draw(delta);
   };
 
   cellIntersectingWithObstacles(snake, coords) {
-    const cell = this.#field.getCell(coords);
+    const cell = this.field.getCell(coords);
 
-    if (Body.isBody(cell)) {
+    if (cell && !Food.isFood(cell)) {
       return this.#gameOver(snake);
     }
 
-    if (this.#field.endless) {
+    if (this.field.endless) {
       return false;
     } else {
       if (this.coorsOutsideField(coords)) {
@@ -146,13 +145,13 @@ export default class Snaked {
   }
 
   #gameOver = snake => {
-    if (this.#field.snakes.length > 1) {
-      this.#field.killSnake(snake);
+    if (this.field.snakes.length > 1) {
+      this.field.killSnake(snake);
     } else {
       this.#isGameOver = true;
       this.stop();
-      this.#onTickEnd(this.#field.gameOver);
-      Score.checkScore(this.#field.snakes[0].score);
+      this.#onTickEnd(this.field.gameOver);
+      Score.checkScore(this.field.snakes[0].score);
     }
 
     return true;
@@ -168,6 +167,6 @@ export default class Snaked {
   };
 
   coorsOutsideField(coords) {
-    return coords.x < 0 || coords.x >= this.#field.width || coords.y < 0 || coords.y >= this.#field.height;
+    return coords.x < 0 || coords.x >= this.field.width || coords.y < 0 || coords.y >= this.field.height;
   }
 }

@@ -6,6 +6,11 @@ function coordsGenerator(field) {
 }
 
 export default class Coords {
+  /**
+   * Create a coords.
+   * @param {number} x - Cell row.
+   * @param {number} y - Cell column.
+   */
   constructor(x, y) {
     this.x = x;
     this.y = y;
@@ -17,7 +22,7 @@ export default class Coords {
 
     if (!force) {
       while (!coords) {
-        if (field.coordsIntersectingWithSnakes(newCoords)) {
+        if (field.getCell(newCoords)) {
           newCoords = coordsGenerator(field);
         } else {
           coords = newCoords;
