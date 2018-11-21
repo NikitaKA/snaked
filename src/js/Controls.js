@@ -6,8 +6,8 @@ export const DIRECTION_UP = 'DIRECTION_UP';
 export const DIRECTION_DOWN = 'DIRECTION_DOWN';
 
 export default class Controls {
-  constructor({ left = 'ArrowLeft', right = 'ArrowRight', up = 'ArrowUp', down = 'ArrowDown' } = {}) {
-    this.app = null;
+  constructor(app, { left = 'ArrowLeft', right = 'ArrowRight', up = 'ArrowUp', down = 'ArrowDown' } = {}) {
+    this.app = app;
     this.direction = null;
 
     this.keysPressed = {};

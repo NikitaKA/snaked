@@ -30,8 +30,8 @@ export default class Cell {
 
   update() {}
 
-  static generate(app) {
-    const coords = Coords.generate(app);
+  static generate(field) {
+    const coords = Coords.generate(field);
     return new Cell(coords);
   }
 }

@@ -5,13 +5,13 @@ import * as CONTROLS from './Controls';
 
 import Coords from './Coords';
 import Body from './Body';
+import Food from './Food';
 
 export default class Snake {
-  constructor(app, controls, { speed = 5, toGrow = 2, color = 'black' } = {}) {
+  constructor(app, field, controls, { speed = 5, toGrow = 2, color = 'black' } = {}) {
     this.app = app;
-    this.field = this.app.field;
+    this.field = field;
     this.controls = controls;
-    this.controls.app = app;
 
     this.body = [];
     this.baseSpeed = 200 - (speed - 1) * 10;
@@ -63,8 +63,11 @@ export default class Snake {
   }
 
   spawn(x = null, y = null) {
-    const coords = x != null && y != null ? new Coords(x, y) : Coords.generate(this.app);
-    this.body.push(new Body(coords));
+    const coords = x != null && y != null ? new Coords(x, y) : Coords.generate(this.field);
+    const body = new Body(this, coords);
+
+    this.body.push(body);
+    this.field.writeCell(body);
   }
 
   checkReverse() {
@@ -110,11 +113,6 @@ export default class Snake {
     }
 
     if (this.controls.direction) {
-      // TODO: temp
-      if (!this.app.started) {
-        this.app.started = true;
-      }
-
       if (!this.app.cellIntersectingWithObstacles(this, headNewCoordsCheck)) {
         let headNewCoords = this.sideTravel(headNewCoordsCheck);
 
@@ -126,27 +124,30 @@ export default class Snake {
   };
 
   addBody(coords) {
-    this.body.unshift(new Body(coords));
+    const body = new Body(this, coords);
+
+    this.body.unshift(body);
+    this.field.writeCell(body);
+
+    this.tailTrimmer();
   }
 
   eat(coords) {
-    this.addBody(coords);
     this.feed(coords);
+    this.addBody(coords);
   }
 
   feed(coordsToEat) {
-    let foodCell = this.checkFoodInCoords(coordsToEat);
+    const cell = this.field.getCell(coordsToEat);
 
-    if (foodCell) {
+    if (Food.isFood(cell)) {
       this.consumed++;
-      this.score += foodCell.score;
+      this.score += cell.score;
 
-      this.toGrow = foodCell.power;
+      this.toGrow = cell.power;
 
-      foodCell.destroy();
+      cell.consume();
     }
-
-    this.tailTrimmer();
   }
 
   tailTrimmer() {
@@ -155,21 +156,8 @@ export default class Snake {
       return false;
     }
 
-    this.body.pop();
-  }
-
-  checkFoodInCoords(coords) {
-    let foodCell = null;
-
-    this.app.food.forEach(food => {
-      if (!foodCell) {
-        if (food.coords.x === coords.x && food.coords.y === coords.y) {
-          foodCell = food;
-        }
-      }
-    });
-
-    return foodCell;
+    const tail = this.body.pop();
+    this.field.deleteCell(tail);
   }
 
   sideTravel(coords) {
@@ -187,5 +175,11 @@ export default class Snake {
     }
 
     return newCoords || coords;
+  }
+
+  destroy() {
+    this.body.forEach(body => {
+      this.field.deleteCell(body);
+    });
   }
 }

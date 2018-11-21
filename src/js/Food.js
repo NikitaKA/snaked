@@ -1,13 +1,12 @@
-import Coords from './Coords';
 import Cell from './Cell';
 
 export default class Food extends Cell {
-  constructor(app, { coords = Coords.generate(app), power = 1, score = 100 } = {}) {
+  constructor(field, coords, { power = 1, score = 100 } = {}) {
     super(coords);
 
-    this.app = app;
-    this.power = power;
+    this.field = field;
 
+    this.power = power;
     this.score = score;
 
     this.hue = 0;
@@ -22,6 +21,10 @@ export default class Food extends Cell {
     this.rotate = 360;
     this.currentDegree = 0;
     this.degreeStep = 1;
+  }
+
+  static isFood(cell) {
+    return cell instanceof Food;
   }
 
   update = () => {
@@ -55,31 +58,36 @@ export default class Food extends Cell {
   draw = ctx => {
     ctx.save();
 
-    ctx.translate(this.coords.x + this.app.field.cellSize / 2, this.coords.y + this.app.field.cellSize / 2);
+    ctx.translate(this.coords.x + this.field.cellSize / 2, this.coords.y + this.field.cellSize / 2);
     ctx.rotate((this.currentDegree * Math.PI) / 180);
-    ctx.translate(-this.coords.x - this.app.field.cellSize / 2, -this.coords.y - this.app.field.cellSize / 2);
+    ctx.translate(-this.coords.x - this.field.cellSize / 2, -this.coords.y - this.field.cellSize / 2);
 
     ctx.fillStyle = 'hsl(' + this.hue + ',100%,50%)';
 
     ctx.fillRect(
       this.coords.x - this.currentZoom,
       this.coords.y - this.currentZoom,
-      this.app.field.cellSize + this.currentZoom * 2,
-      this.app.field.cellSize + this.currentZoom * 2
+      this.field.cellSize + this.currentZoom * 2,
+      this.field.cellSize + this.currentZoom * 2
     );
 
     ctx.restore();
   };
 
+  consume() {
+    this.destroy();
+  }
+
   destroy() {
     let index = null;
 
-    this.app.food.forEach((food, i) => {
+    this.field.food.forEach((food, i) => {
       if (food === this) {
         index = i;
       }
     });
 
-    this.app.food.splice(index, 1);
+    const food = this.field.food.splice(index, 1)[0];
+    this.field.deleteCell(food);
   }
 }

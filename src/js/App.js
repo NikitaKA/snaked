@@ -1,9 +1,17 @@
 import Snaked from './Snaked';
 import Field from './Field';
 
-const canvas = document.getElementById('app');
-const field = new Field(canvas, { width: 20, height: 20, cellSize: 10 });
+let envConfig = {};
 
-let game = new Snaked(field, { debug: true });
+try {
+  envConfig = Object.assign(envConfig, require('../../env'));
+} catch (e) {}
+
+const canvas = document.getElementById('app');
+const field = new Field(canvas, envConfig);
+
+let game = new Snaked(field, envConfig);
 
 game.start();
+
+window.Snaked = game;
