@@ -29,6 +29,8 @@ export default class Field {
     this.canvas = canvas;
     this.ctx = this.canvas.getContext('2d');
 
+    this.showScores = false;
+
     this.init();
   }
 
@@ -93,7 +95,7 @@ export default class Field {
     return !(this.cells[cell.coords.y / this.cellSize][cell.coords.x / this.cellSize] = null);
   }
 
-  update(delta) {
+  tick(delta) {
     this.snakes.forEach(snake => snake.tick(delta));
     this.generateFood();
   }
@@ -123,7 +125,7 @@ export default class Field {
 
     this.drawFood(delta);
 
-    if (!this.snakes.length && !this.app.isGameOver) {
+    if (this.showScores) {
       this.drawScore();
     }
 
@@ -141,20 +143,21 @@ export default class Field {
 
     let scores = [];
 
-    score.forEach(({ name, points }) => {
+    score.forEach(({ name, points }, index) => {
       scores.push({
         font: '12px Arial',
         height: 12,
+        paddingBottom: index < score.length ? 4 : 0,
         text: `${name} ${points}`
       });
     });
 
-    drawText(this.ctx, this, {
+    drawText(this.ctx, {
       align: DRAWTEXT_ALIGN_CENTER,
-      padding: 2,
+      padding: 10,
       bgcolor: '#ffffff',
       bgAlpha: 0.75,
-      lines: [{ font: 'bold 14px Arial', height: 14, text: 'BEST SCORES' }, ...scores]
+      lines: [{ font: 'bold 14px Arial', height: 14, text: 'BEST SCORES', paddingBottom: 6 }, ...scores]
     });
   }
 
@@ -209,7 +212,7 @@ export default class Field {
 
     this.draw();
 
-    drawText(this.ctx, this, {
+    drawText(this.ctx, {
       align: DRAWTEXT_ALIGN_CENTER,
       padding: 2,
       bgcolor: '#ffffff',

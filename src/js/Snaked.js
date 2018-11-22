@@ -1,5 +1,6 @@
 import Score from './Score';
 import Food from './Food';
+import Menu from './Menu';
 
 export const STATE_INITIALIZED = 'STATE_INITIALIZED';
 export const STATE_PAUSED = 'STATE_PAUSED';
@@ -12,11 +13,13 @@ export default class Snaked {
   #state = STATE_INITIALIZED;
   #then = 0;
   #onTickEndCallbacks = [];
+  #menu = null;
 
   constructor(field, { debug = false } = {}) {
+    this.field = field;
     this.debug = debug;
 
-    this.field = field;
+    this.#menu = new Menu(this.field.ctx);
 
     this.#init();
   }
@@ -51,6 +54,44 @@ export default class Snaked {
     window.addEventListener('focus', () => {
       this.start();
     });
+
+    this.#showMainMenu();
+  };
+
+  #showMainMenu = () => {
+    this.#menu.set({
+      title: 'MAIN MENU',
+      options: [
+        {
+          text: `Player 1`,
+          func: () => {
+            this.field.addSnake();
+            this.#hideMainMenu();
+          }
+        },
+        {
+          text: `Player 2`,
+          func: () => {
+            this.field.addSnake();
+            this.field.addSnake();
+            this.#hideMainMenu();
+          }
+        },
+        {
+          text: `Show scores`,
+          func: () => {
+            this.field.showScores = true;
+            this.#hideMainMenu();
+          }
+        }
+      ]
+    });
+
+    this.#menu.show();
+  };
+
+  #hideMainMenu = () => {
+    this.#menu.hide();
   };
 
   #appControl = e => {
@@ -67,9 +108,6 @@ export default class Snaked {
         }
 
         break;
-
-      case 'Enter':
-        this.field.addSnake();
     }
   };
 
@@ -119,11 +157,13 @@ export default class Snaked {
   };
 
   #update = delta => {
-    this.field.update(delta);
+    this.field.tick(delta);
+    this.#menu.tick(delta);
   };
 
   #render = delta => {
     this.field.draw(delta);
+    this.#menu.draw(delta);
   };
 
   cellIntersectingWithObstacles(snake, coords) {
